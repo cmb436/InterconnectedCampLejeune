@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Camp Lejeune Spatial History Place Collection Essay Placeholder title
+title: Essay Placeholder Title
 ---
 
 {% include nav.html %}
