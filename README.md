@@ -1,2 +1,2 @@
-# CL-jekyll
-This is a practice attempt using jekyll, using data regarding Camp Lejeune in North Carolina.
+# Camp Lejeune, Interconnected
+A spatial history of Camp Lejeune and how it’s history disrupted the fabric of Onslow County and the New River basin.
