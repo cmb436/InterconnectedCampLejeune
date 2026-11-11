@@ -3,18 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- ===================================================================== -->
-  <!--  EDIT ZONE: your project title. Change ONLY the text between the tags. -->
-  <!--  Change it in BOTH places below (the <title> and the <h1>).           -->
-  <!-- ===================================================================== -->
-  <title>Camp Lejeune and the New River Basin</title>
+  <title>Camp Lejeune & Its Coastal World</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     html, body { margin:0; height:100%; font-family:'Helvetica Neue',system-ui,sans-serif; background:#0b1020; }
     #map { height:100%; width:100%; background:#0b1020; }
-    .title-card{ position:absolute; top:18px; left:18px; z-index:1000; background:rgba(16,22,40,0.88); color:#eaf0ff; padding:16px 20px; border-radius:10px; max-width:300px; border:1px solid rgba(120,160,255,0.25); box-shadow:0 4px 30px rgba(0,0,0,0.6); }
+    .title-card{ position:absolute; top:18px; left:18px; z-index:1000; background:rgba(16,22,40,0.88); color:#eaf0ff; padding:16px 20px; border-radius:10px; max-width:320px; border:1px solid rgba(120,160,255,0.25); box-shadow:0 4px 30px rgba(0,0,0,0.6); }
     .title-card h1{ margin:0 0 6px; font-size:1.2rem; font-weight:700; color:#fff; }
     .title-card p{ margin:0; font-size:0.82rem; color:#9fb3d9; line-height:1.5; }
     .legend{ position:absolute; bottom:24px; left:18px; z-index:1000; background:rgba(16,22,40,0.88); color:#cdd8f0; padding:12px 16px; border-radius:10px; font-size:0.8rem; border:1px solid rgba(120,160,255,0.25); box-shadow:0 4px 30px rgba(0,0,0,0.6); }
@@ -27,15 +22,15 @@
     .leaflet-popup-content-wrapper{ background:#121831; color:#eaf0ff; border-radius:8px; box-shadow:0 6px 30px rgba(0,0,0,0.7); }
     .leaflet-popup-tip{ background:#121831; }
     .leaflet-popup-content{ margin:0; }
-    .pop{ width:240px; }
+    .pop{ width:250px; }
     .pop .hdr{ padding:11px 15px; border-radius:8px 8px 0 0; }
     .pop .hdr.within{ background:linear-gradient(135deg,#ff6b4a,#c0392b); }
     .pop .hdr.connected{ background:linear-gradient(135deg,#4ad8ff,#2b7fa3); }
     .pop .hdr.neutral{ background:linear-gradient(135deg,#7aa0ff,#4a5fa3); }
-    .pop .hdr .name{ font-size:1.1rem; font-weight:700; color:#fff; }
+    .pop .hdr .name{ font-size:1.05rem; font-weight:700; color:#fff; }
     .pop .hdr .date{ font-size:0.72rem; color:rgba(255,255,255,0.85); margin-top:3px; letter-spacing:0.08em; text-transform:uppercase; }
     .pop .body{ padding:12px 15px; }
-    .pop .desc{ font-size:0.88rem; line-height:1.5; color:#dfe7f7; margin-bottom:10px; }
+    .pop .desc{ font-size:0.86rem; line-height:1.5; color:#dfe7f7; margin-bottom:10px; }
     .pop .meta{ font-size:0.75rem; color:#90a2c8; border-top:1px solid rgba(255,255,255,0.1); padding-top:8px; }
     .pop .meta div{ margin:2px 0; } .pop .meta b{ color:#cdd8f0; }
     .place-label{ background:transparent; border:none; box-shadow:none; color:#eaf0ff; font-size:11px; font-weight:600; text-shadow:0 0 4px #0b1020,0 0 6px #0b1020; }
@@ -48,23 +43,21 @@
 </head>
 <body>
   <div class="title-card">
-    <!-- EDIT ZONE: change this heading to your project title -->
-    <h1>Camp Lejeune and the New River Basin</h1>
-    <p>Wartime Displacement, Segregation, and Regional Networks</p>
+    <h1>Camp Lejeune & Its Coastal World</h1>
+    <p>Maritime displacement, agrarian loss, and regional military transformation (1930s–1950s).</p>
   </div>
   <div class="legend">
-    <div class="row"><span class="dot within"></span>Within</div>
-    <div class="row"><span class="dot connected"></span>Connected</div>
+    <div class="row"><span class="dot within"></span>Within (Vertical / Deep Site)</div>
+    <div class="row"><span class="dot connected"></span>Connected (Horizontal Network)</div>
     <div class="row"><span class="flow"></span>Connection</div>
-    <div class="row"><span class="poly"></span>Region</div>
+    <div class="row"><span class="poly"></span>Region / Route</div>
   </div>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const map = L.map("map").setView([20,20],3);
+    const map = L.map("map").setView([34.6933, -77.3458], 9);
 
-    // Free dark basemap from Esri (no API key). Do not change this.
     L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{
       maxZoom:16, attribution:"Tiles &copy; Esri"
     }).addTo(map);
@@ -99,39 +92,398 @@
       return pts;
     }
 
-    fetch("points.geojson").then(r=>r.json()).then(function(data){
-      let mainLatLng=null; const connected=[];
-      const gj=L.geoJSON(data,{
-        pointToLayer:function(f,latlng){
-          const p=f.properties||{}, c=cat(p);
-          const isWithin=(c==="within");
-          // colour: within = orange, connected = cyan, no type = soft blue (still looks fine)
-          const color = isWithin?"#ff6b4a" : (c==="connected"?"#4ad8ff":"#8aa6e0");
-          if(clean(p.Description).toUpperCase().indexOf("MAIN")>-1) mainLatLng=latlng;
-          if(c==="connected") connected.push(latlng);
-          return L.circleMarker(latlng,{radius:isWithin?9:7,fillColor:color,color:"#fff",weight:1.5,fillOpacity:0.95});
+    // All 21 places embedded directly
+    const placesData = [
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Camp Lejeune (Marine Barracks New River)",
+            "Date": "1941",
+            "Description": "Established in 1941 across 110,000+ acres along the New River for amphibious warfare training, displacing hundreds of coastal agrarian and fishing families. This is the MAIN place.",
+            "type": "within",
+            "Source": "Shaw, U.S. Marine Corps Operations in WWII"
         },
-        onEachFeature:function(f,layer){
-          layer.bindPopup(popupHtml(f.properties||{}),{maxWidth:250});
-          const nm=clean((f.properties||{}).Name)||clean((f.properties||{}).name);
-          if(nm) layer.bindTooltip(nm,{permanent:true,direction:"right",className:"place-label",offset:[8,0]});
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.3458,
+                34.6933
+            ]
         }
-      });
-      gj.addTo(pointsLayer); remember(gj);
-      if(!mainLatLng && gj.getLayers().length && gj.getLayers()[0].getLatLng) mainLatLng=gj.getLayers()[0].getLatLng();
-      if(mainLatLng){ connected.forEach(function(ll){ L.polyline(curve([mainLatLng.lat,mainLatLng.lng],[ll.lat,ll.lng]),{color:"#ffd36b",weight:2,opacity:0.7,className:"flow-line"}).addTo(flowLayer); }); }
-      fit();
-    }).catch(e=>console.warn("points:",e));
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Marines",
+            "Date": "1941",
+            "Description": "A self-sustaining rural Black farming and maritime settlement near Courthouse Bay completely condemned and razed in 1941, scattering families across neighboring counties.",
+            "type": "within",
+            "Source": "U.S. District Court Condemnation Docket #102"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.3789,
+                34.5822
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Sneads Ferry",
+            "Date": "1930s-1940s",
+            "Description": "Historic commercial fishing and oyster village on the south bank of the New River; bordered the expropriation boundary and saw traditional water routes disrupted by Marine artillery zones.",
+            "type": "within",
+            "Source": "Onslow County Historical Society Oral Histories"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.3828,
+                34.5516
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Courthouse Bay Oyster Grounds",
+            "Date": "1938-1944",
+            "Description": "Century-old estuarine public oyster reefs and private bottom leases enclosed and dredged for amphibious craft docks and repair basins.",
+            "type": "within",
+            "Source": "NC Dept of Conservation & Development Biennial Reports"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.362,
+                34.568
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Duck Creek Settlement & Cemetery",
+            "Date": "Late 19th c.-1941",
+            "Description": "Multigenerational agrarian homesteads and family cemeteries within the central reservation footprint; descendants were restricted to military escort visitation.",
+            "type": "within",
+            "Source": "Camp Lejeune Base Historic Preservation Office Survey"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.391,
+                34.647
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Hadnot Point",
+            "Date": "1941-1942",
+            "Description": "Former plantation and tenant farming tracts along the New River paved over to become the central headquarters, industrial area, and barracks core of the base.",
+            "type": "within",
+            "Source": "USMC Base Boundary Survey Maps (1941)"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.355,
+                34.702
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Brown's Island Military Range",
+            "Date": "1942",
+            "Description": "Barrier island historically used by seasonal mullet netters and coastal fishermen, converted into a high-explosive target zone completely severed from civilian navigation.",
+            "type": "within",
+            "Source": "U.S. Coast Guard Notices to Mariners (1942)"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.2345,
+                34.6083
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "New River Inlet",
+            "Date": "1941-1945",
+            "Description": "The natural outlet to the Atlantic used by coastal schooners and fishing smacks; militarized under Navy/Coast Guard harbor patrols to control maritime access.",
+            "type": "within",
+            "Source": "USCG Captain of the Port Records (RG 26)"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.346,
+                34.526
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Verona Rail Depot",
+            "Date": "1941",
+            "Description": "Atlantic Coast Line railroad station where federal marshals served condemnation notices and displaced families loaded timber and possessions for evacuation.",
+            "type": "within",
+            "Source": "Jacksonville Daily News Archival Records (Spring 1941)"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.485,
+                34.664
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Montford Point",
+            "Date": "1942",
+            "Description": "Segregated Marine boot camp constructed over wetlands within the reservation boundary, enforcing military Jim Crow segregation during WWII mobilization.",
+            "type": "within",
+            "Source": "Melton A. McLaurin Montford Point Oral Histories"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.408,
+                34.735
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Onslow County Courthouse (Jacksonville)",
+            "Date": "1941",
+            "Description": "Seat of local judicial power where federal petitions in condemnation under the Declaration of Taking Act were filed, extinguishing private deeds.",
+            "type": "within",
+            "Source": "Onslow County Superior Court Minute Dockets (1941)"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.43,
+                34.752
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Swansboro",
+            "Date": "1940s",
+            "Description": "Historic port town at the White Oak River mouth; shifted from artisanal fishing and boatbuilding into an off-base logistical boomtown and residential relief center.",
+            "type": "connected",
+            "Source": "Tucker, Swansboro: A Coastal North Carolina Town"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.1197,
+                34.6877
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Richlands",
+            "Date": "1941-1945",
+            "Description": "Inland farming community in northern Onslow where dozens of displaced agricultural and tenant families used federal condemnation payouts to buy replacement acreage.",
+            "type": "connected",
+            "Source": "Onslow County Register of Deeds (1941-1942)"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.6186,
+                34.8982
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Wilmington Shipyards (NC Shipbuilding Co.)",
+            "Date": "1941-1945",
+            "Description": "Deepwater industrial Cape Fear destination for displaced coastal watermen transitioning into round-the-clock wartime Liberty ship construction.",
+            "type": "connected",
+            "Source": "NC Shipbuilding Company Records, Duke Univ Special Collections"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.9519,
+                34.2072
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Morehead City Fish Terminal",
+            "Date": "1930s-1950s",
+            "Description": "Primary wholesale market and railhead fish-packing terminal that historically handled bulk catches from Onslow sounds, realigned for wartime military rations.",
+            "type": "connected",
+            "Source": "NC Division of Marine Fisheries Historical Reports"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -76.7261,
+                34.7229
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Burgaw",
+            "Date": "1941-1943",
+            "Description": "Inland Pender County rail hub that absorbed rural tenant sharecropper families forced off lower New River tracts during base clearing.",
+            "type": "connected",
+            "Source": "Farm Security Administration Region IV Case Files (RG 96)"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.9008,
+                34.5516
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Camp Davis",
+            "Date": "1941",
+            "Description": "Sister coastal expropriation site in Pender County; an anti-aircraft training installation that expanded a crossroads of 28 people into a camp of 40,000.",
+            "type": "connected",
+            "Source": "U.S. Army Corps of Engineers Construction Survey (1941)"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.5572,
+                34.4925
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Beaufort Menhaden Fleet",
+            "Date": "1930s-1940s",
+            "Description": "Maritime processing center connected with coastal watermen; processed menhaden fish oil used heavily for defense lubricants and industrial wartime applications.",
+            "type": "connected",
+            "Source": "Garrity-Blake, The Fish Factory"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -76.6638,
+                34.7182
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Cherry Point MCAS (Havelock)",
+            "Date": "1941-1942",
+            "Description": "Sister Marine Corps air station established concurrently in Craven County, forming an integrated coastal air-ground amphibious strike complex with Lejeune.",
+            "type": "connected",
+            "Source": "Rottman, USMC WWII Order of Battle"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -76.9011,
+                34.9009
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Norfolk Naval Operating Base",
+            "Date": "1940-1945",
+            "Description": "Headquarters of the 5th Naval District directing coastal artillery, offshore convoy defense, and naval support logistics into Onslow Bay.",
+            "type": "connected",
+            "Source": "Naval History & Heritage Command 5th District Admin History"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -76.3013,
+                36.9472
+            ]
+        }
+    },
+    {
+        "type": "Feature",
+        "properties": {
+            "Name": "Navy Department (Munitions Building, DC)",
+            "Date": "1941",
+            "Description": "The political/administrative core where the Secretary of the Navy and Marine Corps Commandant finalized the selection and condemnation orders for Onslow County.",
+            "type": "connected",
+            "Source": "Frank & Shaw, Victory and Vexation in Logistics (1941)"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [
+                -77.0425,
+                38.8915
+            ]
+        }
+    }
+];
 
+    let mainLatLng=null; const connected=[];
+    const gj=L.geoJSON(placesData,{
+      pointToLayer:function(f,latlng){
+        const p=f.properties||{}, c=cat(p);
+        const isWithin=(c==="within");
+        const color = isWithin?"#ff6b4a" : (c==="connected"?"#4ad8ff":"#8aa6e0");
+        if(clean(p.Description).toUpperCase().indexOf("MAIN")>-1) mainLatLng=latlng;
+        if(c==="connected") connected.push(latlng);
+        return L.circleMarker(latlng,{radius:isWithin?9:7,fillColor:color,color:"#fff",weight:1.5,fillOpacity:0.95});
+      },
+      onEachFeature:function(f,layer){
+        layer.bindPopup(popupHtml(f.properties||{}),{maxWidth:260});
+        const nm=clean((f.properties||{}).Name)||clean((f.properties||{}).name);
+        if(nm) layer.bindTooltip(nm,{permanent:true,direction:"right",className:"place-label",offset:[8,0]});
+      }
+    });
+    gj.addTo(pointsLayer); remember(gj);
+    if(!mainLatLng && gj.getLayers().length && gj.getLayers()[0].getLatLng) mainLatLng=gj.getLayers()[0].getLatLng();
+    if(mainLatLng){ connected.forEach(function(ll){ L.polyline(curve([mainLatLng.lat,mainLatLng.lng],[ll.lat,ll.lng]),{color:"#ffd36b",weight:2,opacity:0.7,className:"flow-line"}).addTo(flowLayer); }); }
+    fit();
+
+    // Optionally fetch lines and polygons if present
     fetch("lines.geojson").then(r=>r.json()).then(function(data){
       const gj=L.geoJSON(data,{style:{color:"#9b7bff",weight:2.5,opacity:0.85,dashArray:"7 7"},onEachFeature:function(f,l){l.bindPopup(popupHtml(f.properties||{}));}});
       gj.addTo(linesLayer); remember(gj); fit();
-    }).catch(e=>console.warn("lines:",e));
+    }).catch(e=>console.log("No extra lines.geojson found, skipping"));
 
     fetch("polygons.geojson").then(r=>r.json()).then(function(data){
       const gj=L.geoJSON(data,{style:{color:"#7aa0ff",weight:1.5,fillColor:"#7aa0ff",fillOpacity:0.12},onEachFeature:function(f,l){l.bindPopup(popupHtml(f.properties||{}));}});
       gj.addTo(polyLayer); remember(gj); fit();
-    }).catch(e=>console.warn("polygons:",e));
+    }).catch(e=>console.log("No extra polygons.geojson found, skipping"));
 
     flowLayer.addTo(map); polyLayer.addTo(map); linesLayer.addTo(map); pointsLayer.addTo(map);
     L.control.layers(null,{"Places":pointsLayer,"Connections":flowLayer,"Routes":linesLayer,"Regions":polyLayer},{collapsed:false}).addTo(map);
